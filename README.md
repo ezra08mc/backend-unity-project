@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>Backend Mini Project</h1>
+  <h1>Mini Project Backend Unity</h1>
   <h3><b>Secure Todo List API</b></h3>  
   <p>A clean, scalable REST API built with Go, designed to fulfill the requirements of the Backend Development Division mini project.</p>
   
@@ -9,7 +9,9 @@
 </div>
 
 ## 🚀 Overview
-**Backend Mini Project** is a robust, production-ready REST API built with Go. Following the principles of **Clean Architecture**, this project provides a modular and maintainable foundation for managing Todo lists. It is designed to demonstrate secure user authentication and efficient data operations as part of the Backend Development Division assignment.
+**Mini Project Backend Unity** is a robust, production-ready REST API built with Go. Following the principles of **Clean Architecture**, this project provides a modular and maintainable foundation for a **Task Management System (To-Do List)**. 
+
+This project is part of the **Back-End Development** division assignment. The expected outcome for candidates is to **understand the Client-Server concept and demonstrate the ability to create basic logic flows** within a structured backend environment.
 
 ### 🎯 Key Objectives
 1. **Clean Architecture:** Decoupled layers (Controller, Service, Repository) for easy testing and maintenance.
