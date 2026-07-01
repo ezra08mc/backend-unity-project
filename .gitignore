@@ -1,0 +1,51 @@
+# Binaries
+main
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Keys and Secrets
+*.pem
+*.key
+*.crt
+
+# IDE/Editor files
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+
+# Go specific
+vendor/
+tmp/
+*.test
+*.out
+*.prof
+*.cgo1.go
+*.cgo2.c
+_obj
+_test
+
+# Aider specific
+.aider*
+.aider.chat.history.md
+.aider.input.history
+
+# Logs and Databases
+*.log
+*.db
+*.sqlite
+*.sqlite-journal
