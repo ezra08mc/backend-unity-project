@@ -17,11 +17,12 @@
 **Mini Project Backend Unity** is a robust, production-ready REST API built with Go. Following the principles of **Clean Architecture**, this project provides a modular and maintainable foundation for a **Task Management System (To-Do List)**. 
 
 This project is part of the **Backend Development** division assignment. The expected outcome for candidates is to **understand the Client-Server concept and demonstrate the ability to create basic logic flows** within a structured backend environment.
-<div align="center">
+
   
-  [![Live API](https://img.shields.io/badge/Live_API-project.ezramighty.me-B75D69?style=for-the-badge&logo=go&logoColor=white)](https://project.ezramighty.me)
-  [![Documentation](https://img.shields.io/badge/Swagger-Docs-blue?style=for-the-badge&logo=swagger)](https://project.ezramighty.me/swagger/index.html)
-</div>
+### 🌍 Live API Documentation
+  [![Live API Documentation](https://img.shields.io/badge/Live_API-Swagger_Docs-B75D69?style=for-the-badge&logo=swagger&logoColor=white)](https://project.ezramighty.me/swagger/index.html) <br>
+  **Username**  : admin@unityunsrat.dev <br>
+  **Password**  : miniprojectbackendunity2026
 
 
 ### 🎯 Key Objectives
