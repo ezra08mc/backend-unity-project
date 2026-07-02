@@ -18,74 +18,83 @@ func ImplTodoService(todoRepo contract.TodoRepository) contract.TodoService {
 	return &todoService{todoRepo: todoRepo}
 }
 
-func mapToResponse(t database.Todo, message string) dto.TodoResponse {
-	var deletedAt *time.Time
-	if t.DeletedAt.Valid {
-		deletedAt = &t.DeletedAt.Time
-	}
+func mapToData(t database.Todo) dto.TodoData {
+    var deletedAt *time.Time
+    if t.DeletedAt.Valid {
+        deletedAt = &t.DeletedAt.Time
+    }
 
-	return dto.TodoResponse{
-		Success:     true,
-		Message:     message,
-		ID:          t.ID,
-		Title:       t.Title,
-		Description: t.Description,
-		IsDone:      t.IsDone,
-		CreatedAt:   t.CreatedAt,
-		DeletedAt:   deletedAt,
-	}
+    return dto.TodoData{
+        ID:          t.ID,
+        Title:       t.Title,
+        Description: t.Description,
+        IsDone:      t.IsDone,
+        CreatedAt:   t.CreatedAt,
+        DeletedAt:   deletedAt,
+    }
+}
+
+func mapToResponse(t database.Todo, message string) dto.TodoResponse {
+    return dto.TodoResponse{
+        Success: true,
+        Message: message,
+        Data:    mapToData(t),
+    }
+}
+
+func mapToListResponse(todos []database.Todo, message string) dto.TodoListResponse {
+    data := []dto.TodoData{}
+    for _, t := range todos {
+        data = append(data, mapToData(t))
+    }
+    return dto.TodoListResponse{
+        Success: true,
+        Message: message,
+        Data:    data,
+    }
 }
 
 func (s *todoService) CreateTodo(userID int, req dto.TodoRequest) (*dto.TodoResponse, error) {
-	todo := &database.Todo{
-		Title:       req.Title,
-		Description: req.Description,
-		IsDone:      req.IsDone,
-		UserID:      userID,
+    todo := &database.Todo{
+		Title: req.Title, 
+		Description: req.Description, 
+		IsDone: req.IsDone, 
+		UserID: userID}
+    if err := s.todoRepo.Create(todo); err != nil { 
+		return nil, err 
 	}
-	if err := s.todoRepo.Create(todo); err != nil {
-		return nil, err
-	}
-	
-	resp := mapToResponse(*todo, "Todo created successfully")
-	return &resp, nil
+    resp := mapToResponse(*todo, "Todo created successfully")
+    return &resp, nil
 }
-
 // Admin methods (Global access)
-func (s *todoService) GetAllActive(limit, offset int) ([]dto.TodoResponse, error) {
-	todos, err := s.todoRepo.GetAllActive(limit, offset)
-	if err != nil {
-		return nil, err
+func (s *todoService) GetAllActive(limit, offset int) (*dto.TodoListResponse, error) {
+    todos, err := s.todoRepo.GetAllActive(limit, offset)
+    if err != nil { 
+		return nil, err 
 	}
-	var response []dto.TodoResponse
-	for _, t := range todos {
-		response = append(response, mapToResponse(t, "Active todo retrieved"))
-	}
-	return response, nil
+    resp := mapToListResponse(todos, "Active todo retrieved")
+    return &resp, nil
 }
 
-func (s *todoService) GetAllTrash(limit, offset int) ([]dto.TodoResponse, error) {
-	todos, err := s.todoRepo.GetAllTrash(limit, offset)
-	if err != nil {
-		return nil, err
+func (s *todoService) GetAllTrash(limit, offset int) (*dto.TodoListResponse, error) {
+    todos, err := s.todoRepo.GetAllTrash(limit, offset)
+    if err != nil { 
+		return nil, err 
 	}
-	var response []dto.TodoResponse
-	for _, t := range todos {
-		response = append(response, mapToResponse(t, "Trashed todo retrieved"))
-	}
-	return response, nil
+    resp := mapToListResponse(todos, "Trashed todo retrieved")
+    return &resp, nil
 }
 
 func (s *todoService) GetByID(id int) (*dto.TodoResponse, error) {
-	todo, err := s.todoRepo.GetByID(id)
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errs.NotFound("Todo not found")
+    todo, err := s.todoRepo.GetByID(id)
+    if err != nil {
+        if err == gorm.ErrRecordNotFound { 
+			return nil, errs.NotFound("Todo not found") 
 		}
-		return nil, err
-	}
-	resp := mapToResponse(*todo, "Todo retrieved successfully")
-	return &resp, nil
+        return nil, err
+    }
+    resp := mapToResponse(*todo, "Todo retrieved successfully")
+    return &resp, nil
 }
 
 func (s *todoService) Update(id int, req dto.TodoRequest) (*dto.TodoResponse, error) {
@@ -128,30 +137,23 @@ func (s *todoService) PermanentDelete(id int) error {
 }
 
 // User methods (Scoped access)
-func (s *todoService) GetActiveByUserID(userID int, limit, offset int) ([]dto.TodoResponse, error) {
-	todos, err := s.todoRepo.GetActiveByUserID(userID, limit, offset)
-	if err != nil {
-		return nil, err
-	}
-	var response []dto.TodoResponse
-	for _, t := range todos {
-		response = append(response, mapToResponse(t, "Active todo retrieved"))
-	}
-	return response, nil
+func (s *todoService) GetActiveByUserID(userID int, limit, offset int) (*dto.TodoListResponse, error) {
+    todos, err := s.todoRepo.GetActiveByUserID(userID, limit, offset)
+    if err != nil {
+        return nil, err
+    }
+    resp := mapToListResponse(todos, "Active todo retrieved")
+    return &resp, nil
 }
 
-func (s *todoService) GetTrashByUserID(userID int, limit, offset int) ([]dto.TodoResponse, error) {
-	todos, err := s.todoRepo.GetTrashByUserID(userID, limit, offset)
-	if err != nil {
-		return nil, err
-	}
-	var response []dto.TodoResponse
-	for _, t := range todos {
-		response = append(response, mapToResponse(t, "Trashed todo retrieved"))
-	}
-	return response, nil
+func (s *todoService) GetTrashByUserID(userID int, limit, offset int) (*dto.TodoListResponse, error) {
+    todos, err := s.todoRepo.GetTrashByUserID(userID, limit, offset)
+    if err != nil {
+        return nil, err
+    }
+    resp := mapToListResponse(todos, "Trashed todo retrieved")
+    return &resp, nil
 }
-
 func (s *todoService) GetByIDAndUserID(id int, userID int) (*dto.TodoResponse, error) {
 	todo, err := s.todoRepo.GetByIDAndUserID(id, userID)
 	if err != nil {

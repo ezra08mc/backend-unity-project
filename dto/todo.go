@@ -9,6 +9,18 @@ type TodoRequest struct {
 }
 
 type TodoResponse struct {
+    Success bool     `json:"success"`
+    Message string   `json:"message"`
+    Data    TodoData `json:"data"`
+}
+
+type TodoListResponse struct {
+    Success bool       `json:"success"`
+    Message string     `json:"message"`
+    Data    []TodoData `json:"data"`
+}
+
+type TodoData struct {
 	Success     bool       `json:"success"`
 	Message     string     `json:"message"`
 	ID          int        `json:"id"`
@@ -18,3 +30,4 @@ type TodoResponse struct {
 	CreatedAt   time.Time  `json:"created_at"`
 	DeletedAt   *time.Time `json:"deleted_at"`
 }
+
