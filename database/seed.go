@@ -38,7 +38,7 @@ func seedDefaultAdmin(db *gorm.DB) error {
 
 	admin := User{
 		Name:     "Admin",
-		Email:    " ",
+		Email:    "admin@unityunsrat.dev",
 		Password: hashPassword("miniprojectbackendunity2026"),
 		Role:     "admin",
 	}

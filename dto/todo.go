@@ -21,8 +21,6 @@ type TodoListResponse struct {
 }
 
 type TodoData struct {
-	Success     bool       `json:"success"`
-	Message     string     `json:"message"`
 	ID          int        `json:"id"`
 	Title       string     `json:"title"`
 	Description string     `json:"description"`

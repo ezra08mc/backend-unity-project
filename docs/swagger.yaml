@@ -68,6 +68,32 @@ definitions:
       success:
         type: boolean
     type: object
+  dto.TodoData:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      is_done:
+        type: boolean
+      title:
+        type: string
+    type: object
+  dto.TodoListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/dto.TodoData'
+        type: array
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
   dto.TodoRequest:
     properties:
       description:
@@ -82,22 +108,12 @@ definitions:
     type: object
   dto.TodoResponse:
     properties:
-      created_at:
-        type: string
-      deleted_at:
-        type: string
-      description:
-        type: string
-      id:
-        type: integer
-      is_done:
-        type: boolean
+      data:
+        $ref: '#/definitions/dto.TodoData'
       message:
         type: string
       success:
         type: boolean
-      title:
-        type: string
     type: object
   dto.UserData:
     properties:
@@ -132,9 +148,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/dto.TodoResponse'
-            type: array
+            $ref: '#/definitions/dto.TodoListResponse'
       security:
       - BearerAuth: []
       summary: Get active todos
@@ -269,9 +283,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/dto.TodoResponse'
-            type: array
+            $ref: '#/definitions/dto.TodoListResponse'
       security:
       - BearerAuth: []
       summary: '[Admin] Get all active'
@@ -362,9 +374,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/dto.TodoResponse'
-            type: array
+            $ref: '#/definitions/dto.TodoListResponse'
       security:
       - BearerAuth: []
       summary: '[Admin] Get all trash'
@@ -376,9 +386,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/dto.TodoResponse'
-            type: array
+            $ref: '#/definitions/dto.TodoListResponse'
       security:
       - BearerAuth: []
       summary: Get trash

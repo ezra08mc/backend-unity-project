@@ -57,8 +57,8 @@ func (t *TodoController) Create(ctx *gin.Context) {
     var p dto.TodoRequest
     if err := ctx.ShouldBindJSON(&p); err != nil {
         ctx.JSON(http.StatusBadRequest, gin.H{
-            "message": "Validasi gagal",
-            "errors":  gin.H{"title": "Title wajib diisi dan minimal 3 karakter"},
+            "message": "Validation failed",
+            "errors":  gin.H{"title": "Title is required and must be at least 3 characters"},
         })
         return
     }

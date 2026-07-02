@@ -30,10 +30,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.TodoResponse"
-                            }
+                            "$ref": "#/definitions/dto.TodoListResponse"
                         }
                     }
                 }
@@ -96,10 +93,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.TodoResponse"
-                            }
+                            "$ref": "#/definitions/dto.TodoListResponse"
                         }
                     }
                 }
@@ -120,10 +114,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.TodoResponse"
-                            }
+                            "$ref": "#/definitions/dto.TodoListResponse"
                         }
                     }
                 }
@@ -273,10 +264,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.TodoResponse"
-                            }
+                            "$ref": "#/definitions/dto.TodoListResponse"
                         }
                     }
                 }
@@ -678,6 +666,46 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.TodoData": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_done": {
+                    "type": "boolean"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.TodoListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.TodoData"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "dto.TodoRequest": {
             "type": "object",
             "required": [
@@ -699,29 +727,14 @@ const docTemplate = `{
         "dto.TodoResponse": {
             "type": "object",
             "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "deleted_at": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "is_done": {
-                    "type": "boolean"
+                "data": {
+                    "$ref": "#/definitions/dto.TodoData"
                 },
                 "message": {
                     "type": "string"
                 },
                 "success": {
                     "type": "boolean"
-                },
-                "title": {
-                    "type": "string"
                 }
             }
         },
