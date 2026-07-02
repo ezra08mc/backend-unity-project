@@ -25,12 +25,24 @@ This project is part of the **Backend Development** division assignment. The exp
 - 📝 **Complete CRUD** — Full capabilities to Create, Read, Update, and Delete todo items.
 - 📄 **Pagination** — Efficient data handling using `limit` and `offset` queries for retrieving lists.
 - 🗑️ **Soft Delete & Trash** — Safely remove records with soft-delete implementation, allowing users to view or recover items from the trash.
+- 📖 **Self-Documenting** — Integrated Swagger/OpenAPI documentation for seamless API exploration and testing.
 - 👥 **Role-Based Access** — Distinct access boundaries for regular **Users** (manage own data) and **Admins** (global management).
+- 🛡️ **Protection & Limits** — Includes Rate Limiting to prevent abuse and ensure API stability
 - 🏗️ **Clean Architecture** — Strict separation of concerns between business logic, data access, and API handling.
 - ⚡ **High Performance** — Built with Go for speed, concurrency, and reliability.
 
 ## 🛠️ Tech Stack
-Built with **Go (Golang)**, **Gin Web Framework**, and **PostgreSQL**.
+Built with **Go (Golang)**, **Gin Web Framework**, **GORM** and **PostgreSQL**.
+
+## 📂 Project Structure
+- `config/` — Configuration files and environment setup.
+- `database/` — Database connection and initialization logic.
+- `dto/` — Data Transfer Objects for request and response validation.
+- `repository/` — Data access layer for interacting with the database.
+- `service/` — Business logic layer.
+- `controller/` — HTTP request handlers.
+- `contract/` — Interfaces for decoupling layers.
+- `main.go` — Application entry point.
 
 ## 📋 API Documentation
 All endpoints are prefixed with `/api`. Access is strictly controlled based on user roles and data ownership.
@@ -58,16 +70,6 @@ All endpoints are prefixed with `/api`. Access is strictly controlled based on u
 | **PUT** | `/api/todos/admin/:id` | Update any user's todo | Yes (Admin) |
 | **PATCH** | `/api/todos/admin/:id/restore` | Restore any user's todo from trash | Yes (Admin) |
 | **DELETE** | `/api/todos/admin/:id/permanent` | Force delete any todo permanently | Yes (Admin) |
-
-## 📂 Project Structure
-- `config/` — Configuration files and environment setup.
-- `database/` — Database connection and initialization logic.
-- `dto/` — Data Transfer Objects for request and response validation.
-- `repository/` — Data access layer for interacting with the database.
-- `service/` — Business logic layer.
-- `controller/` — HTTP request handlers.
-- `contract/` — Interfaces for decoupling layers.
-- `main.go` — Application entry point.
   
 ## 📖 Guide
 
@@ -151,21 +153,32 @@ go run main.go
 The server will be accessible at `http://localhost:8080`.
 
 ## 3. API Documentation
+This project includes interactive API documentation. Once the server is running, navigate to:
+`http://localhost:8080/swagger/index.html`
+
+**Note:** To test protected endpoints in Swagger UI, click the **Authorize** button and enter your token in the format: `Bearer <your_token>`.
 
 ### 3.1 Authentication
 To access protected endpoints, you must first log in to obtain a JWT token.
 
 Register:
 ```bash
-
+curl -X POST http://localhost:8080/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Your Name",
+    "email": "user@example.com",
+    "password": "password123",
+    "password_confirmation": "password123"
+  }'
 ```
 Login:
 ```bash
 curl -X POST http://localhost:8080/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "REGISTRED_EMAIL",
-    "password": "PASSWORD"
+    "email": "user@example.com",
+    "password": "password123"
   }'
 ```
 
@@ -203,7 +216,11 @@ curl -X GET "http://localhost:8080/api/todos?limit=10&offset=0" \
   -H "Authorization: Bearer <YOUR_TOKEN>"
 ```
 
-3. Update Own Todo:
+3. Get Specific Own Todo:
+curl -X GET http://localhost:8080/api/todos/1 \
+  -H "Authorization: Bearer <YOUR_TOKEN>"
+
+4. Update Own Todo:
 ```bash
 curl -X PUT http://localhost:8080/api/todos/1 \
   -H "Content-Type: application/json" \
@@ -214,23 +231,24 @@ curl -X PUT http://localhost:8080/api/todos/1 \
   }'
 ```
 
-4. Soft Delete a Todo (Move to Trash):
+5. Soft Delete a Todo (Move to Trash):
 ```bash
 curl -X DELETE http://localhost:8080/api/todos/1 \
   -H "Authorization: Bearer <YOUR_TOKEN>"
 ```
 
-5. Get Trashed Todos:
+6. Get Trashed Todos:
 ```bash
 curl -X GET http://localhost:8080/api/todos/trash \
   -H "Authorization: Bearer <YOUR_TOKEN>"
 ```
 
-6. Restore Todo from Trash:
+7. Restore Todo from Trash:
 ```bash
 curl -X PATCH http://localhost:8080/api/todos/1/restore \
   -H "Authorization: Bearer <YOUR_TOKEN>"
 ```
+
 8. Permanently Delete Own Todo:
 ```bash
 curl -X DELETE http://localhost:8080/api/todos/1/permanent \
@@ -241,7 +259,7 @@ curl -X DELETE http://localhost:8080/api/todos/1/permanent \
 
 1. Get All Users' Todos (with Pagination):
 ```bash
-curl -X GET "http://localhost:8080/api/admin/todos?limit=20&offset=0" \
+curl -X GET "http://localhost:8080/api/todos/admin?limit=20&offset=0" \
   -H "Authorization: Bearer <ADMIN_TOKEN>"
 ```
 
@@ -251,13 +269,27 @@ curl -X GET http://localhost:8080/api/todos/admin/trash \
   -H "Authorization: Bearer <ADMIN_TOKEN>"
 ```
 
-3. Restore Any User's Todo:
+3. Get Specific Todo Detail
+```bash
+curl -X GET http://localhost:8080/api/todos/admin/1 \
+  -H "Authorization: Bearer <ADMIN_TOKEN>"
+```
+
+4. Update Any Todo
+```bash
+curl -X PUT http://localhost:8080/api/todos/admin/1 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <ADMIN_TOKEN>" \
+  -d '{"title": "Updated by Admin", "description": "..."}'
+```
+
+5. Restore Any User's Todo:
 ```bash
 curl -X PATCH http://localhost:8080/api/todos/admin/1/restore \
   -H "Authorization: Bearer <ADMIN_TOKEN>"
 ```
 
-4. Permanent Delete Any User's Todo:
+6. Permanent Delete Any User's Todo:
 ```bash
 curl -X DELETE http://localhost:8080/api/todos/admin/1/permanent \
   -H "Authorization: Bearer <ADMIN_TOKEN>"
