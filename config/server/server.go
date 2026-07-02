@@ -15,6 +15,10 @@ import (
 	"github.com/ezra08mc/backend-unity-project/repository"
 	"github.com/ezra08mc/backend-unity-project/service"
 	"gorm.io/gorm"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	_ "github.com/ezra08mc/backend-unity-project/docs" 
 )
 
 func Run() {
@@ -49,6 +53,12 @@ func startServer(cfg *config.AppConfigurationMap, db *gorm.DB) {
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 	r.Static("/static", "./static")
+
+	swaggerGroup := r.Group("/swagger")
+	swaggerGroup.Use(middleware.BasicAuthForSwagger())
+	{
+		swaggerGroup.GET("/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	}
 
 	controller.New(r, serv)
 

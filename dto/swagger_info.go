@@ -10,3 +10,5 @@ package dto
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
+// @scheme bearer
+// @bearerFormat JWT

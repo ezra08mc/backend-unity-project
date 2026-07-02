@@ -1,0 +1,479 @@
+definitions:
+  dto.ErrorResponse:
+    properties:
+      code:
+        type: string
+      error:
+        type: string
+      success:
+        type: boolean
+    type: object
+  dto.LoginData:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/dto.UserData'
+    type: object
+  dto.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.LoginResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dto.LoginData'
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  dto.ProfileResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dto.UserData'
+      success:
+        type: boolean
+    type: object
+  dto.RegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        minLength: 2
+        type: string
+      password:
+        minLength: 6
+        type: string
+      password_confirmation:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    - password_confirmation
+    type: object
+  dto.RegisterResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dto.UserData'
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  dto.TodoRequest:
+    properties:
+      description:
+        type: string
+      is_done:
+        type: boolean
+      title:
+        minLength: 3
+        type: string
+    required:
+    - title
+    type: object
+  dto.TodoResponse:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      is_done:
+        type: boolean
+      message:
+        type: string
+      success:
+        type: boolean
+      title:
+        type: string
+    type: object
+  dto.UserData:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      role:
+        type: string
+    type: object
+  errs.ErrorData:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Documentation for Backend Unity Mini Project
+  title: Mini Project Backend Unity API
+  version: "1.0"
+paths:
+  /api/todos:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.TodoResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get active todos
+      tags:
+      - Todo User
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Todo data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/dto.TodoRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.TodoResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errs.ErrorData'
+      security:
+      - BearerAuth: []
+      summary: Create todo
+      tags:
+      - Todo User
+  /api/todos/{id}:
+    delete:
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Soft delete
+      tags:
+      - Todo User
+    get:
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TodoResponse'
+      security:
+      - BearerAuth: []
+      summary: Get todo detail
+      tags:
+      - Todo User
+    put:
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/dto.TodoRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TodoResponse'
+      security:
+      - BearerAuth: []
+      summary: Update todo
+      tags:
+      - Todo User
+  /api/todos/{id}/permanent:
+    delete:
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Permanent delete
+      tags:
+      - Todo User
+  /api/todos/{id}/restore:
+    patch:
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Restore todo
+      tags:
+      - Todo User
+  /api/todos/admin:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.TodoResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: '[Admin] Get all active'
+      tags:
+      - Todo Admin
+  /api/todos/admin/{id}:
+    get:
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TodoResponse'
+      security:
+      - BearerAuth: []
+      summary: '[Admin] Get detail'
+      tags:
+      - Todo Admin
+    put:
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/dto.TodoRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TodoResponse'
+      security:
+      - BearerAuth: []
+      summary: '[Admin] Update any'
+      tags:
+      - Todo Admin
+  /api/todos/admin/{id}/permanent:
+    delete:
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: '[Admin] Permanent delete any'
+      tags:
+      - Todo Admin
+  /api/todos/admin/{id}/restore:
+    patch:
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: '[Admin] Restore any'
+      tags:
+      - Todo Admin
+  /api/todos/admin/trash:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.TodoResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: '[Admin] Get all trash'
+      tags:
+      - Todo Admin
+  /api/todos/trash:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.TodoResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get trash
+      tags:
+      - Todo User
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login with email & password, returns a JWT token
+      parameters:
+      - description: Login data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.LoginResponse'
+        "400":
+          description: Invalid request payload / invalid credentials
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: User login
+      tags:
+      - Auth
+  /auth/profile:
+    get:
+      consumes:
+      - application/json
+      description: Get user profile data based on JWT token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ProfileResponse'
+        "401":
+          description: Unauthorized / token invalid
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get logged-in user profile
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: 'Create a new account (default role: user)'
+      parameters:
+      - description: Registration data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.RegisterResponse'
+        "400":
+          description: Invalid request payload / validation failed
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - Auth
+securityDefinitions:
+  BearerAuth:
+    description: 'Enter your token in the following format: "Bearer <token>" (Example:
+      Bearer eyJhbGci...)'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

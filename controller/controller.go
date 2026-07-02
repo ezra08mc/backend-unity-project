@@ -19,18 +19,29 @@ type Controller interface {
 }
 
 func New(app *gin.Engine, service *contract.Service) {
-	allController := []Controller{
-		&AuthController{},
-		&TodoController{},
-	}
+    allController := []Controller{
+        &AuthController{},
+        &TodoController{},
+    }
 
-	for _, c := range allController {
-		c.InitService(service)
-		group := app.Group(c.GetPrefix())
-		group.Use(middleware.CORSMiddleware())
-		c.InitRoute(group)
-		log.Printf("initiate route %s\n", c.GetPrefix())
-	}
+    rootGroup := app.Group("/")
+    apiGroup := app.Group("/api")
+
+    for _, c := range allController {
+        c.InitService(service)
+        
+        var targetGroup *gin.RouterGroup
+        if len(c.GetPrefix()) >= 4 && c.GetPrefix()[:4] == "/api" {
+            subPath := c.GetPrefix()[4:] 
+            targetGroup = apiGroup.Group(subPath)
+        } else {
+            targetGroup = rootGroup.Group(c.GetPrefix())
+        }
+
+        targetGroup.Use(middleware.CORSMiddleware())
+        c.InitRoute(targetGroup)
+        log.Printf("initiate route %s\n", c.GetPrefix())
+    }
 }
 
 func HandlerError(ctx *gin.Context, err error) {
@@ -43,12 +54,14 @@ func HandlerError(ctx *gin.Context, err error) {
 	ctx.JSON(http.StatusInternalServerError, errs.InternalServerError("Internal Server Error"))
 }
 
-func getUserID(ctx *gin.Context) (int, error){
-	rawID, exists := ctx.Get("user_id")
-	if !exists {
-		HandlerError(ctx, errs.Unauthorized("Unauthorized"))
-	}
-	return rawID.(int), nil		
+func getUserID(ctx *gin.Context) (int, error) {
+    rawID, exists := ctx.Get("user_id")
+    if !exists {
+        err := errs.Unauthorized("Unauthorized")
+        HandlerError(ctx, err)
+        return 0, err 
+    }
+    return rawID.(int), nil     
 }
 
 func getPagination(ctx *gin.Context) (int, int){

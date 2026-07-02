@@ -33,7 +33,7 @@ func (a *AuthController) InitRoute(app *gin.RouterGroup) {
 
 // Register godoc
 // @Summary      Register a new user
-// @Description  Create a new account (default role: customer)
+// @Description  Create a new account (default role: user)
 // @Tags         Auth
 // @Accept       json
 // @Produce      json

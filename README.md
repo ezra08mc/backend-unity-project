@@ -21,20 +21,43 @@ This project is part of the **Backend Development** division assignment. The exp
 3. **Scalable Design:** A modular structure that allows for seamless future feature expansion.
 
 ## ✨ Core Features
-- 🔐 **Security & Auth** — Robust authentication utilizing **JWT (JSON Web Tokens)**.
-- 📝 **Todo List** — Full capabilities to Create, Read, and Delete todo items.
+- 🔐 **Security & Auth** — Robust authentication utilizing **JWT (JSON Web Tokens)** and secure **Password Hashing** (e.g., Bcrypt) for user credentials.
+- 📝 **Complete CRUD** — Full capabilities to Create, Read, Update, and Delete todo items.
 - 📄 **Pagination** — Efficient data handling using `limit` and `offset` queries for retrieving lists.
+- 🗑️ **Soft Delete & Trash** — Safely remove records with soft-delete implementation, allowing users to view or recover items from the trash.
+- 👥 **Role-Based Access** — Distinct access boundaries for regular **Users** (manage own data) and **Admins** (global management).
 - 🏗️ **Clean Architecture** — Strict separation of concerns between business logic, data access, and API handling.
 - ⚡ **High Performance** — Built with Go for speed, concurrency, and reliability.
 
+## 🛠️ Tech Stack
+Built with **Go (Golang)**, **Gin Web Framework**, and **PostgreSQL**.
+
 ## 📋 API Documentation
-All endpoints are prefixed with `/api`.
+All endpoints are prefixed with `/api`. Access is strictly controlled based on user roles and data ownership.
+
+### 👤 User Scope (Manage Own Data)
 
 | Method | Endpoint | Description | Auth |
 | :--- | :--- | :--- | :--- |
 | **POST** | `/api/todos` | Create a new todo item | Yes |
-| **GET** | `/api/todos` | Get all todos (with pagination) | Yes |
-| **DELETE** | `/api/todos/:id` | Delete a todo by ID | Yes |
+| **GET** | `/api/todos` | Get active todos (paginated) | Yes |
+| **GET** | `/api/todos/:id` | Get specific own active todo details | Yes |
+| **PUT** | `/api/todos/:id` | Update own active todo | Yes |
+| **DELETE** | `/api/todos/:id` | Soft delete own todo (Move to trash) | Yes |
+| **GET** | `/api/todos/trash` | Get all own soft-deleted todos | Yes |
+| **PATCH** | `/api/todos/:id/restore` | Restore todo from trash back to active | Yes |
+| **DELETE** | `/api/todos/:id/permanent` | Force delete own todo permanently | Yes |
+
+### 🛡️ Admin Scope (Global Management)
+
+| Method | Endpoint | Description | Auth |
+| :--- | :--- | :--- | :--- |
+| **GET** | `/api/todos/admin` | Get all users' active todos | Yes (Admin) |
+| **GET** | `/api/todos/admin/trash` | Get all users' deleted/trashed todos | Yes (Admin) |
+| **GET** | `/api/todos/admin/:id` | Get any specific todo details | Yes (Admin) |
+| **PUT** | `/api/todos/admin/:id` | Update any user's todo | Yes (Admin) |
+| **PATCH** | `/api/todos/admin/:id/restore` | Restore any user's todo from trash | Yes (Admin) |
+| **DELETE** | `/api/todos/admin/:id/permanent` | Force delete any todo permanently | Yes (Admin) |
 
 ## 📂 Project Structure
 - `config/` — Configuration files and environment setup.
@@ -45,10 +68,7 @@ All endpoints are prefixed with `/api`.
 - `controller/` — HTTP request handlers.
 - `contract/` — Interfaces for decoupling layers.
 - `main.go` — Application entry point.
-
-## 🛠️ Tech Stack
-Built with **Go (Golang)**, **Gin Web Framework**, and **PostgreSQL**.
-
+  
 ## 📖 Guide
 
 ### 1. Prerequisites
@@ -62,12 +82,15 @@ Ensure your development environment has the following installed:
 #### 2.1 Clone the Repository
 ```bash
 git clone https://github.com/ezra08mc/backend-unity-project
+
 cd backend-unity-project
 ```
 
 #### 2.2 Install Dependencies
 Initialize and download the required Go modules:
 ```bash
+go mod download
+
 go mod tidy
 ```
 
@@ -78,10 +101,37 @@ go mod tidy
    ```
 2. Edit the `.env` file and update the database credentials (`DB_USER`, `DB_PASS`, `DB_NAME`, `DB_HOST`, `DB_PORT`) to match your local PostgreSQL configuration.
 
+`.env`
+```env
+
+PORT=8080
+IS_PRODUCTION=false
+BASE_URL=http://localhost:8080
+
+# Database Configuration
+DB_USER=postgres
+DB_PASS=password
+DB_NAME=todoproject
+DB_HOST=localhost
+DB_PORT=5432
+DB_TIME_ZONE=Asia/Jakarta
+
+# Token Configuration
+ACCESS_TOKEN_LIFE_TIME=3600
+REFRESH_TOKEN_LIFE_TIME=86400
+PRIVATE_KEY=private_key.pem
+PUBLIC_KEY=public_key.pem
+
+# Rate Limiting
+RATE_LIMIT_RPS=10
+RATE_LIMIT_BURST=20
+```
+
 #### 2.4 Generate JWT Keys
 The application requires RSA key pairs for JWT authentication. Generate them in the root directory:
 ```bash
 openssl genrsa -out private_key.pem 2048
+
 openssl rsa -in private_key.pem -pubout -out public_key.pem
 ```
 
@@ -89,6 +139,7 @@ openssl rsa -in private_key.pem -pubout -out public_key.pem
 Run the initial database migration and seed the default admin account:
 ```bash
 go run main.go migrate
+
 go run main.go seed
 ```
 
@@ -99,12 +150,26 @@ go run main.go
 ```
 The server will be accessible at `http://localhost:8080`.
 
-## 3. API Usage Examples
+## 3. API Documentation
 
 ### 3.1 Authentication
 To access protected endpoints, you must first log in to obtain a JWT token.
 
-**Login:**
+Register:
+```bash
+
+```
+Login:
+```bash
+curl -X POST http://localhost:8080/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "REGISTRED_EMAIL",
+    "password": "PASSWORD"
+  }'
+```
+
+Login (Admin):
 ```bash
 curl -X POST http://localhost:8080/auth/login \
   -H "Content-Type: application/json" \
@@ -116,9 +181,11 @@ curl -X POST http://localhost:8080/auth/login \
 *Copy the `token` from the response data.*
 
 ### 3.2 Todo List Endpoints
-All Todo endpoints require the `Authorization: Bearer <token>` header.
+All Todo endpoints require the `Authorization: Bearer <token>` header. Below are the examples categorized by role.
 
-**1. Create a Todo:**
+### 👤 User Scope Examples
+
+1. Create a Todo:
 ```bash
 curl -X POST http://localhost:8080/api/todos \
   -H "Content-Type: application/json" \
@@ -129,20 +196,78 @@ curl -X POST http://localhost:8080/api/todos \
   }'
 ```
 
-**2. Get All Todos (with Pagination):**
+2. Get All Own Todos (with Pagination):
 Use limit and offset query parameters.
 ```bash
 curl -X GET "http://localhost:8080/api/todos?limit=10&offset=0" \
   -H "Authorization: Bearer <YOUR_TOKEN>"
 ```
 
-**3. Delete a Todo:**
+3. Update Own Todo:
+```bash
+curl -X PUT http://localhost:8080/api/todos/1 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <YOUR_TOKEN>" \
+  -d '{
+    "title": "Learning REST API - Advanced", 
+    "description": "Adding pagination and soft delete"
+  }'
+```
+
+4. Soft Delete a Todo (Move to Trash):
 ```bash
 curl -X DELETE http://localhost:8080/api/todos/1 \
   -H "Authorization: Bearer <YOUR_TOKEN>"
 ```
 
+5. Get Trashed Todos:
+```bash
+curl -X GET http://localhost:8080/api/todos/trash \
+  -H "Authorization: Bearer <YOUR_TOKEN>"
+```
+
+6. Restore Todo from Trash:
+```bash
+curl -X PATCH http://localhost:8080/api/todos/1/restore \
+  -H "Authorization: Bearer <YOUR_TOKEN>"
+```
+8. Permanently Delete Own Todo:
+```bash
+curl -X DELETE http://localhost:8080/api/todos/1/permanent \
+  -H "Authorization: Bearer <YOUR_TOKEN>"
+```
+
+### 🛡️ Admin Scope Examples
+
+1. Get All Users' Todos (with Pagination):
+```bash
+curl -X GET "http://localhost:8080/api/admin/todos?limit=20&offset=0" \
+  -H "Authorization: Bearer <ADMIN_TOKEN>"
+```
+
+2. Get All Users' Trashed Todos:
+```bash
+curl -X GET http://localhost:8080/api/todos/admin/trash \
+  -H "Authorization: Bearer <ADMIN_TOKEN>"
+```
+
+3. Restore Any User's Todo:
+```bash
+curl -X PATCH http://localhost:8080/api/todos/admin/1/restore \
+  -H "Authorization: Bearer <ADMIN_TOKEN>"
+```
+
+4. Permanent Delete Any User's Todo:
+```bash
+curl -X DELETE http://localhost:8080/api/todos/admin/1/permanent \
+  -H "Authorization: Bearer <ADMIN_TOKEN>"
+```
+
 ## 5. Troubleshooting
-- **Database Connection:** Ensure PostgreSQL is running and your .env credentials are correct.
-- **Missing Keys:** Ensure private_key.pem and public_key.pem exist in the root directory.
-- **401 Unauthorized:** Ensure you are sending the correct Authorization: Bearer <token> header.
+
+- **Database Connection:** Ensure PostgreSQL is running and your .env credentials are
+correct.
+- **Missing Keys:** Ensure private_key.pem and public_key.pem exist in the root
+directory.
+- **401 Unauthorized:** Ensure you are sending the correct Authorization: Bearer
+<token> header.

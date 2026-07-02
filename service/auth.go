@@ -39,7 +39,7 @@ func (s *authService) Register(req dto.RegisterRequest) (*dto.RegisterResponse, 
 		Name:     req.Name,
 		Email:    req.Email,
 		Password: string(hashedPassword),
-		Role:     "customer",
+		Role:     "user",
 	}
 
 	if err := s.authRepo.CreateUser(user); err != nil {

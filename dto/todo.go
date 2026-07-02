@@ -15,7 +15,6 @@ type TodoResponse struct {
 	Title       string     `json:"title"`
 	Description string     `json:"description"`
 	IsDone      bool       `json:"is_done"`
-	Status      string     `json:"status"`
 	CreatedAt   time.Time  `json:"created_at"`
 	DeletedAt   *time.Time `json:"deleted_at"`
 }

@@ -10,7 +10,7 @@ import (
 func BasicAuthForSwagger() gin.HandlerFunc {
 	const (
 		SWAGGER_USERNAME = "admin"
-		SWAGGER_PASSWORD = "kelompok3"
+		SWAGGER_PASSWORD = "miniprojectbackendunity2026"
 	)
 
 	return func(c *gin.Context) {

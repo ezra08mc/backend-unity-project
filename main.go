@@ -4,7 +4,12 @@ package main
 // @version 1.0
 // @description Documentation for Backend Unity Mini Project
 // @host localhost:8080
-// @BasePath /
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Enter your token in the following format: "Bearer <token>" (Example: Bearer eyJhbGci...)
+// @scheme bearer
+// @bearerFormat JWT
 
 import (
 	"fmt"
@@ -14,7 +19,9 @@ import (
 	dbConfig "github.com/ezra08mc/backend-unity-project/config/database"
 	"github.com/ezra08mc/backend-unity-project/config/pkg/token"
 	"github.com/ezra08mc/backend-unity-project/config/server"
-	dbMigration "github.com/ezra08mc/backend-unity-project/database"
+	"github.com/ezra08mc/backend-unity-project/database"
+    
+	_ "github.com/ezra08mc/backend-unity-project/docs"
 )
 
 func main() {
@@ -26,32 +33,15 @@ func main() {
 		case "migrate":
 			runMigrations()
 			return
-		case "reset":
-			runReset()
-			return
 		case "seed":
 			runSeedOnly()
 			return
-		default:
-			fmt.Println("Unknown command. Use: migrate | reset | seed")
+		case "reset":
+			runReset()
 			return
-		}
-	}
-
-	db, _, err := dbConfig.ConnectDB()
-	if err != nil {
-		panic(fmt.Errorf("failed to connect database: %w", err))
-	}
-
-	if !db.Migrator().HasTable(&dbMigration.User{}) {
-		fmt.Println("🔄 First run detected, running auto-migration...")
-		if err := dbMigration.RunMigration(db); err != nil {
-			panic(fmt.Errorf("auto-migration failed: %w", err))
-		}
-	} else {
-		fmt.Println("✅ Database already migrated, ensuring seed...")
-		if err := dbMigration.Seed(db); err != nil {
-			panic(fmt.Errorf("seeding failed: %w", err))
+		default:
+			fmt.Println("Unknown command. Use: migrate | seed | reset")
+			return
 		}
 	}
 
@@ -63,33 +53,11 @@ func runMigrations() {
 	if err != nil {
 		panic(err)
 	}
-
-	if err := dbMigration.RunMigration(db); err != nil {
+	fmt.Println("🔄 Running database migration...")
+	if err := database.RunMigration(db); err != nil {
 		panic(err)
 	}
-}
-
-func runReset() {
-	db, _, err := dbConfig.ConnectDB()
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println("🗑️   Dropping all tables...")
-	err = db.Migrator().DropTable(
-		&dbMigration.User{},
-		&dbMigration.Todo{},
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println("🔄 Recreating tables with AutoMigrate...")
-	if err := dbMigration.RunMigration(db); err != nil {
-		panic(err)
-	}
-
-	fmt.Println("✅ Database reset completed")
+	fmt.Println("✅ Migration completed")
 }
 
 func runSeedOnly() {
@@ -97,10 +65,23 @@ func runSeedOnly() {
 	if err != nil {
 		panic(err)
 	}
-
 	fmt.Println("🌱 Running seed only...")
-	if err := dbMigration.Seed(db); err != nil {
+	if err := database.Seed(db); err != nil {
 		panic(err)
 	}
 	fmt.Println("✅ Seeding completed")
+}
+
+func runReset() {
+	db, _, err := dbConfig.ConnectDB()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("🗑️ Dropping all tables...")
+	err = db.Migrator().DropTable(&database.Todo{}, &database.User{})
+	if err != nil {
+		panic(err)
+	}
+	runMigrations()
+	fmt.Println("✅ Database reset completed")
 }
