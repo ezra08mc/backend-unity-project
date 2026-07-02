@@ -18,17 +18,66 @@
 
 This project is part of the **Backend Development** division assignment. The expected outcome for candidates is to **understand the Client-Server concept and demonstrate the ability to create basic logic flows** within a structured backend environment.
 
-  
-### 🌍 Live API Documentation
-  [![Live API Documentation](https://img.shields.io/badge/Live_API-Swagger_Docs-B75D69?style=for-the-badge&logo=swagger&logoColor=white)](https://project.ezramighty.me/swagger/index.html) <br>
-  **Username**  : admin@unityunsrat.dev <br>
-  **Password**  : miniprojectbackendunity2026
-
-
 ### 🎯 Key Objectives
 1. **Clean Architecture:** Decoupled layers (Controller, Service, Repository) for easy testing and maintenance.
 2. **Secure Access:** JWT-based authentication to protect sensitive endpoints from unauthorized access.
 3. **Scalable Design:** A modular structure that allows for seamless future feature expansion.
+
+## 🌍 Live API Documentation
+**Production (Deployed):** [project.ezramighty.me](https://project.ezramighty.me)
+
+[![Live API Documentation](https://img.shields.io/badge/Live_API-Swagger_Docs-B75D69?style=for-the-badge&logo=swagger&logoColor=white)](https://project.ezramighty.me/swagger/index.html)
+
+**Demo Credentials:**
+- `Username`: admin
+- `Password`: your_secret_password *(Replace with your actual demo password)*
+
+**Getting Started:**
+- **Public Access:** You can register a new user directly via the `/auth/register` endpoint.
+- **Local Admin:** If you are running the project locally, execute `go run main.go seed` to generate an admin account using your local environment settings.
+
+---
+
+## 🚀 API Usage Examples
+*Note: Replace `https://project.ezramighty.me` with `http://localhost:8080` if you are running the server locally.*
+
+1. Register a New User
+```bash
+curl -X POST [https://project.ezramighty.me/auth/register](https://project.ezramighty.me/auth/register) \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "password": "password123",
+    "password_confirmation": "password123"
+  }'
+```
+2. Login & Get JWT Token
+Save the token from the response to use in the Authorization header for subsequent requests.
+```bash
+curl -X POST https://project.ezramighty.me/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john@example.com",
+    "password": "password123"
+  }'
+  ```
+3. Create a New Todo <br>
+Replace `<YOUR_TOKEN>` with the token you received after logging in.
+```bash
+curl -X POST https://project.ezramighty.me/api/todos \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <YOUR_TOKEN>" \
+  -d '{
+    "title": "Learn Go Backend",
+    "description": "Finish the Mini Project Unity"
+  }'
+```
+4. Get Todos (with Pagination)
+```bash
+curl -X GET "https://project.ezramighty.me/api/todos?limit=10&offset=0" \
+  -H "Authorization: Bearer <YOUR_TOKEN>"
+```
 
 ## ✨ Core Features
 - 🔐 **Security & Auth** — Robust authentication utilizing **JWT (JSON Web Tokens)** and secure **Password Hashing** (e.g., Bcrypt) for user credentials.
@@ -54,7 +103,8 @@ Built with **Go (Golang)**, **Gin Web Framework**, **GORM** and **PostgreSQL**.
 - `contract/` — Interfaces for decoupling layers.
 - `main.go` — Application entry point.
 
-## 📋 API Documentation
+
+## 📋 API Reference & Usage
 All endpoints are prefixed with `/api`. Access is strictly controlled based on user roles and data ownership.
 
 ### 👤 User Scope (Manage Own Data)
@@ -80,98 +130,17 @@ All endpoints are prefixed with `/api`. Access is strictly controlled based on u
 | **PUT** | `/api/todos/admin/:id` | Update any user's todo | Yes (Admin) |
 | **PATCH** | `/api/todos/admin/:id/restore` | Restore any user's todo from trash | Yes (Admin) |
 | **DELETE** | `/api/todos/admin/:id/permanent` | Force delete any todo permanently | Yes (Admin) |
-  
-## 📖 Guide
 
-### 1. Prerequisites
-Ensure your development environment has the following installed:
-- **Go** (version 1.21 or higher)
-- **PostgreSQL**
-- **OpenSSL** (for generating JWT keys)
 
-### 2. Setup Guide
-
-#### 2.1 Clone the Repository
-```bash
-git clone https://github.com/ezra08mc/backend-unity-project
-
-cd backend-unity-project
-```
-
-#### 2.2 Install Dependencies
-Initialize and download the required Go modules:
-```bash
-go mod download
-
-go mod tidy
-```
-
-#### 2.3 Environment Configuration
-1. Copy the example environment file:
-   ```bash
-   cp .env.example .env
-   ```
-2. Edit the `.env` file and update the database credentials (`DB_USER`, `DB_PASS`, `DB_NAME`, `DB_HOST`, `DB_PORT`) to match your local PostgreSQL configuration.
-
-`.env`
-```env
-
-PORT=8080
-IS_PRODUCTION=false
-BASE_URL=http://localhost:8080
-
-# Database Configuration
-DB_USER=postgres
-DB_PASS=password
-DB_NAME=todoproject
-DB_HOST=localhost
-DB_PORT=5432
-DB_TIME_ZONE=Asia/Jakarta
-
-# Token Configuration
-ACCESS_TOKEN_LIFE_TIME=3600
-REFRESH_TOKEN_LIFE_TIME=86400
-PRIVATE_KEY=private_key.pem
-PUBLIC_KEY=public_key.pem
-
-# Rate Limiting
-RATE_LIMIT_RPS=10
-RATE_LIMIT_BURST=20
-```
-
-#### 2.4 Generate JWT Keys
-The application requires RSA key pairs for JWT authentication. Generate them in the root directory:
-```bash
-openssl genrsa -out private_key.pem 2048
-
-openssl rsa -in private_key.pem -pubout -out public_key.pem
-```
-
-#### 2.5 Database Migration & Seeding
-Run the initial database migration and seed the default admin account:
-```bash
-go run main.go migrate
-
-go run main.go seed
-```
-
-#### 2.6 Running the Server
-Start the application:
-```bash
-go run main.go
-```
-The server will be accessible at `http://localhost:8080`.
-
-## 3. API Documentation
 This project includes interactive API documentation. Once the server is running, navigate to:
 `http://localhost:8080/swagger/index.html`
 
 **Note:** To test protected endpoints in Swagger UI, click the **Authorize** button and enter your token in the format: `Bearer <your_token>`.
 
-### 3.1 Authentication
+### 1. Authentication
 To access protected endpoints, you must first log in to obtain a JWT token.
 
-Register:
+1. Register:
 ```bash
 curl -X POST http://localhost:8080/auth/register \
   -H "Content-Type: application/json" \
@@ -182,7 +151,7 @@ curl -X POST http://localhost:8080/auth/register \
     "password_confirmation": "password123"
   }'
 ```
-Login:
+2, Login:
 ```bash
 curl -X POST http://localhost:8080/auth/login \
   -H "Content-Type: application/json" \
@@ -192,7 +161,7 @@ curl -X POST http://localhost:8080/auth/login \
   }'
 ```
 
-Login (Admin):
+3. Login (Admin):
 ```bash
 curl -X POST http://localhost:8080/auth/login \
   -H "Content-Type: application/json" \
@@ -203,7 +172,7 @@ curl -X POST http://localhost:8080/auth/login \
 ```
 *Copy the `token` from the response data.*
 
-### 3.2 Todo List Endpoints
+### 2. Todo List Endpoints
 All Todo endpoints require the `Authorization: Bearer <token>` header. Below are the examples categorized by role.
 
 ### 👤 User Scope Examples
@@ -304,8 +273,91 @@ curl -X PATCH http://localhost:8080/api/todos/admin/1/restore \
 curl -X DELETE http://localhost:8080/api/todos/admin/1/permanent \
   -H "Authorization: Bearer <ADMIN_TOKEN>"
 ```
+  
+## 📖 Guide
 
-## 5. Troubleshooting
+### 1. Prerequisites
+Ensure your development environment has the following installed:
+- **Go** (version 1.21 or higher)
+- **PostgreSQL**
+- **OpenSSL** (for generating JWT keys)
+
+### 2. Setup Guide
+
+#### 2.1 Clone the Repository
+```bash
+git clone https://github.com/ezra08mc/backend-unity-project
+
+cd backend-unity-project
+```
+
+#### 2.2 Install Dependencies
+Initialize and download the required Go modules:
+```bash
+go mod download
+
+go mod tidy
+```
+
+#### 2.3 Environment Configuration
+1. Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+2. Edit the `.env` file and update the database credentials (`DB_USER`, `DB_PASS`, `DB_NAME`, `DB_HOST`, `DB_PORT`) to match your local PostgreSQL configuration.
+
+`.env`
+```env
+
+PORT=8080
+IS_PRODUCTION=false
+BASE_URL=http://localhost:8080
+
+# Database Configuration
+DB_USER=postgres
+DB_PASS=password
+DB_NAME=todoproject
+DB_HOST=localhost
+DB_PORT=5432
+DB_TIME_ZONE=Asia/Jakarta
+
+# Token Configuration
+ACCESS_TOKEN_LIFE_TIME=3600
+REFRESH_TOKEN_LIFE_TIME=86400
+PRIVATE_KEY=private_key.pem
+PUBLIC_KEY=public_key.pem
+
+# Rate Limiting
+RATE_LIMIT_RPS=10
+RATE_LIMIT_BURST=20
+```
+
+#### 2.4 Generate JWT Keys
+The application requires RSA key pairs for JWT authentication. Generate them in the root directory:
+```bash
+openssl genrsa -out private_key.pem 2048
+
+openssl rsa -in private_key.pem -pubout -out public_key.pem
+```
+
+#### 2.5 Database Migration & Seeding
+Run the initial database migration and seed the default admin account:
+```bash
+go run main.go migrate
+
+go run main.go seed
+```
+
+#### 2.6 Running the Server
+Start the application:
+```bash
+go run main.go
+```
+The server will be accessible at `http://localhost:8080`.
+
+
+
+## Troubleshooting
 
 - **Database Connection:** Ensure PostgreSQL is running and your .env credentials are
 correct.
