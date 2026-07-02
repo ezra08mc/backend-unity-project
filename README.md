@@ -8,12 +8,21 @@
   [![Go Version](https://img.shields.io/badge/Go-1.21+-blue.svg)](https://go.dev/)
   [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
   [![Status](https://img.shields.io/badge/Status-Active-success.svg)]()
+  
 </div>
+
+
 
 ## 🚀 Overview
 **Mini Project Backend Unity** is a robust, production-ready REST API built with Go. Following the principles of **Clean Architecture**, this project provides a modular and maintainable foundation for a **Task Management System (To-Do List)**. 
 
 This project is part of the **Backend Development** division assignment. The expected outcome for candidates is to **understand the Client-Server concept and demonstrate the ability to create basic logic flows** within a structured backend environment.
+<div align="center">
+  
+  [![Live API](https://img.shields.io/badge/Live_API-project.ezramighty.me-B75D69?style=for-the-badge&logo=go&logoColor=white)](https://project.ezramighty.me)
+  [![Documentation](https://img.shields.io/badge/Swagger-Docs-blue?style=for-the-badge&logo=swagger)](https://project.ezramighty.me/swagger/index.html)
+</div>
+
 
 ### 🎯 Key Objectives
 1. **Clean Architecture:** Decoupled layers (Controller, Service, Repository) for easy testing and maintenance.
